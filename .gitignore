@@ -28,3 +28,4 @@ dist-ssr
 .claude/*
 .cursor/*
 .gemini/*
+# BMAD (local only)
