@@ -6,7 +6,7 @@
 * **Centralize BI Access**: Provide a single, user-friendly portal for all 20 team members to access BI dashboards.
 * **Implement Role-Based Access Control**: Ensure users can only view dashboards and data relevant to their specific roles, eliminating unauthorized data access.
 * **Automate Data Pipeline**: Maintain a fully automated and reliable daily data pipeline from Xero and Workflow Max to Supabase with greater than 99% uptime.
-* **Ensure Future Flexibility**: Build an architecture that can simultaneously support embedded dashboards from both Google Looker Studio, Microsoft Power BI, and Metabase.
+* **Ensure Future Flexibility**: Build an architecture that can simultaneously support embedded dashboards from both Google Looker Studio and Microsoft Power BI.
 
 ### Background Context
 Our organization relies on key business data from Xero and Workflow Max, processed via an n8n workflow into a Supabase database, to make informed decisions. Currently, our growing team of 20 members lacks a centralized or secure method to access these BI dashboards, leading to fragmented access, inefficient permissions management, and potential data governance risks.
@@ -16,7 +16,7 @@ This project will create a scalable, secure portal that solves these issues by p
 ### Change Log
 | Date | Version | Description | Author |
 | :--- | :--- | :--- | :--- |
-| 2025-09-23 | 1.2 | Updated frontend framework from framework to React/Vite to align with architecture document. | John (PM) |
+| 2025-09-23 | 1.2 | Updated frontend framework from Next.js/React to Vue.js 3 to align with architecture document. | John (PM) |
 | 2025-09-23 | 1.1 | Updated Epics and Stories with specific dashboard requirements from client document. | John (PM) |
 | 2025-09-23 | 1.0 | Initial PRD draft based on Project Brief. | John (PM) |
 
@@ -25,10 +25,10 @@ This project will create a scalable, secure portal that solves these issues by p
 ### Functional
 * **FR1**: The system must provide secure user authentication (registration, login, logout) using email and password, handled by Supabase Authentication.
 * **FR2**: The main portal page must conditionally render a specific set of embedded dashboards based on the logged-in user's assigned role ('admin', 'role\_a', 'role\_b').
-* **FR3**: The portal must support embedding reports via `<iframe>` from both Google Looker Studio, Microsoft Power BI, and Metabase.
+* **FR3**: The portal must support embedding reports via `<iframe>` from both Google Looker Studio and Microsoft Power BI.
 * **FR4**: The system must utilize a Supabase database with a `profiles` table to link authenticated users to their roles.
 * [cite_start]**FR5**: A daily automated n8n workflow must extract data from Xero and Workflow Max and load it into the Supabase database[cite: 3, 31].
-* **FR6**: The application will be built using the Dashibase (React / Vite + Supabase) boilerplate to accelerate development.
+* **FR6**: The application will be built using the Dashibase (Vue.js + Supabase) boilerplate to accelerate development.
 
 ### Non Functional
 * **NFR1**: Data in all dashboards must be consistently refreshed daily.
@@ -61,21 +61,21 @@ The application should be fully responsive and accessible on standard desktop an
 ## Technical Assumptions
 
 ### Repository Structure: Monorepo
-The project will use a monorepo structure, as the Dashibase boilerplate provides a single, integrated React / Vite application.
+The project will use a monorepo structure, as the Dashibase boilerplate provides a single, integrated Vue.js application.
 
 ### Service Architecture: Monolith (Serverless)
-The project is a single React / Vite application that leverages Supabase for its backend services (Auth, Database), fitting a monolithic but serverless-first architectural pattern.
+The project is a single Vue.js application that leverages Supabase for its backend services (Auth, Database), fitting a monolithic but serverless-first architectural pattern.
 
 ### Testing Requirements: Unit + Integration
 Testing will focus on unit tests for critical logic (e.g., role-gating) and integration tests to ensure reliable connections to Supabase and the data pipeline.
 
 ### Additional Technical Assumptions and Requests
 * **UI Boilerplate**: Dashibase will be used to accelerate development.
-* **Frontend Framework**: React with Vite.
+* **Frontend Framework**: Vue.js 3 with Vite.
 * **Backend & Authentication**: Supabase.
 * **Data Automation (ETL)**: n8n.
 * [cite_start]**Primary Data Source**: Xero, Workflow Max / XPM[cite: 3, 31].
-* **BI Tools**: Google Looker Studio, Microsoft Power BI, and Metabase.
+* **BI Tools**: Google Looker Studio and Microsoft Power BI.
 * **Deployment**: Vercel or Netlify.
 
 ## Epic List
@@ -175,31 +175,3 @@ Testing will focus on unit tests for critical logic (e.g., role-gating) and inte
 3. The dashboard is visible only to 'Admin' users.
 
 
-
-## Epic 4: Self-Service Xero Integration
-**Epic Goal**: To empower users to securely connect their own Xero accounts to the platform, manage their connection, and trigger the data pipeline for their specific data.
-
-### Story 4.1: Implement Xero OAuth 2.0 Connection UI
-**As a** user, **I want** a simple wizard to guide me through connecting my Xero account, **so that** I can grant the application secure access to my data.
-#### Acceptance Criteria
-1. A "Connect to Xero" button is available in a new "Settings" or "Integrations" page.
-2. Clicking the button initiates the Xero OAuth 2.0 flow.
-3. The user is redirected to Xero to authorize the connection.
-4. Upon successful authorization, the application securely stores the refresh token and tenant ID in a new xero_connections table in Supabase, associated with the user's profile.
-5. The UI updates to show a "Connected" status with the associated Xero organization name.
-
-### Story 4.2: Create Secure Server-Side Token Management
-**As a** developer, **I want** secure server-side logic to handle Xero access tokens, **so that** user credentials are never exposed on the client.
-#### Acceptance Criteria
-1. A Supabase Edge Function is created to handle the OAuth callback from Xero.
-2. The function exchanges the authorization code for an access token and refresh token.
-3. Tokens are stored securely, encrypted at rest in the xero_connections table.
-4. A separate Edge Function is created to handle token refreshes, ensuring persistent access to the Xero API.
-
-### Story 4.3: Implement Connection Management UI
-**As a** user, **I want** to see the status of my Xero connection and be able to disconnect it, **so that** I have full control over the integration.
-#### Acceptance Criteria
-1. The "Settings" or "Integrations" page displays the current Xero connection status and the connected organization.
-2. A "Disconnect" button is available.
-3. Clicking "Disconnect" revokes the token with Xero's API and deletes the connection record from the Supabase table.
-4. The UI updates to show a "Not Connected" status.
