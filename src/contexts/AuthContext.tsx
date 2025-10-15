@@ -3,12 +3,15 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+type UserRole = 'admin' | 'role_a' | 'role_b' | null;
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  role: UserRole;
   signOut: () => Promise<void>;
 }
 
@@ -31,11 +34,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<UserRole>(null);
+
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        setRole(null);
+      } else {
+        setRole(data?.role as UserRole || null);
+      }
+    } catch (err) {
+      console.error('Error fetching user role:', err);
+      setRole(null);
+    }
+  };
 
   const updateAuthState = (newSession: Session | null) => {
     console.log('AuthContext: Updating auth state:', newSession?.user?.email || 'No session');
     setSession(newSession);
     setUser(newSession?.user ?? null);
+    
+    // Fetch user role when session is established
+    if (newSession?.user) {
+      fetchUserRole(newSession.user.id);
+    } else {
+      setRole(null);
+    }
     
     // Clear any previous errors on successful auth
     if (newSession && error) {
@@ -48,6 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setSession(null);
     setUser(null);
     setError(null);
+    setRole(null);
   };
 
   const signOut = async () => {
@@ -179,6 +211,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     error,
     isAuthenticated: !!user && !!session,
+    role,
     signOut,
   };
 

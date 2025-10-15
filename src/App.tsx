@@ -6,8 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
-import Notebook from "./pages/Notebook";
+import BIDashboardPortal from "./pages/BIDashboardPortal";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -20,23 +20,15 @@ const AppContent = () => {
         path="/" 
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <Dashboard />
+            <BIDashboardPortal />
           </ProtectedRoute>
         } 
       />
       <Route 
-        path="/notebook" 
+        path="/settings" 
         element={
           <ProtectedRoute fallback={<Auth />}>
-            <Notebook />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/notebook/:id" 
-        element={
-          <ProtectedRoute fallback={<Auth />}>
-            <Notebook />
+            <Settings />
           </ProtectedRoute>
         } 
       />
